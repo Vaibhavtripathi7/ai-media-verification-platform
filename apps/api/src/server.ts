@@ -1,11 +1,12 @@
 import { createApp } from "./app";
+import { env } from "./config";
 
 async function startServer() {
   const app = createApp();
 
   try {
     await app.listen({
-      port: 3000,
+      port: env.PORT,
       host: "0.0.0.0"
     });
 
