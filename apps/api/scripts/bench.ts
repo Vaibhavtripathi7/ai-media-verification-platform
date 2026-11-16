@@ -43,13 +43,17 @@ let counter = 0;
 
 async function post(body: Buffer, type: string): Promise<{ ms: number; ok: boolean }> {
   const start = performance.now();
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "content-type": type },
-    body: new Uint8Array(body),
-  });
-  await res.arrayBuffer();
-  return { ms: performance.now() - start, ok: res.ok };
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": type },
+      body: new Uint8Array(body),
+    });
+    await res.arrayBuffer();
+    return { ms: performance.now() - start, ok: res.ok };
+  } catch {
+    return { ms: performance.now() - start, ok: false };
+  }
 }
 
 async function run(name: string, concurrency: number, fresh: boolean) {
@@ -72,6 +76,10 @@ async function run(name: string, concurrency: number, fresh: boolean) {
 
   await Promise.all(Array.from({ length: concurrency }, worker));
   const seconds = (performance.now() - started) / 1000;
+  if (latencies.length === 0) {
+    console.log(`${name.padEnd(28)}all ${failed} requests failed`);
+    return;
+  }
   latencies.sort((a, b) => a - b);
   const at = (q: number) =>
     latencies[Math.min(latencies.length - 1, Math.ceil(q * latencies.length) - 1)];
