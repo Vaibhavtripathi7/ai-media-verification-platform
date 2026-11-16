@@ -1,0 +1,227 @@
+:root {
+  --bg: #e6e9eb;
+  --surface: #f4f5f6;
+  --ink: #1d2328;
+  --muted: #5d6873;
+  --line: #b9c1c8;
+  --ai: #a3214f;
+  --real: #2d6a4e;
+  --unsure: #8c7623;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15191c;
+    --surface: #1e2327;
+    --ink: #e3e7ea;
+    --muted: #95a0a9;
+    --line: #3a434a;
+    --ai: #e0628f;
+    --real: #5fb38a;
+    --unsure: #cdb55a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    1rem/1.55 ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+/* Crop marks in the four corners, like a print being inspected on a light table. */
+.drop {
+  --mark: linear-gradient(var(--ink), var(--ink));
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  min-height: 15rem;
+  padding: 1.5rem;
+  background:
+    var(--mark) top left / 1.25rem 2px,
+    var(--mark) top left / 2px 1.25rem,
+    var(--mark) top right / 1.25rem 2px,
+    var(--mark) top right / 2px 1.25rem,
+    var(--mark) bottom left / 1.25rem 2px,
+    var(--mark) bottom left / 2px 1.25rem,
+    var(--mark) bottom right / 1.25rem 2px,
+    var(--mark) bottom right / 2px 1.25rem,
+    var(--surface);
+  background-repeat: no-repeat;
+  cursor: pointer;
+  text-align: center;
+}
+
+.drop:focus-within,
+.drop.dragging {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.drop input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.drop img {
+  display: block;
+  max-width: 100%;
+  max-height: 24rem;
+  object-fit: contain;
+}
+
+.drop.busy img {
+  opacity: 0.55;
+}
+
+.prompt {
+  max-width: 22rem;
+  color: var(--muted);
+}
+
+.drop img:not([hidden]) + .prompt {
+  max-width: none;
+  font-size: 0.875rem;
+}
+
+.button {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+kbd {
+  padding: 0 0.3em;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.85em;
+}
+
+.result {
+  margin-top: 2rem;
+}
+
+.verdict {
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.result[data-verdict="likely_ai"] {
+  --tone: var(--ai);
+}
+.result[data-verdict="likely_real"] {
+  --tone: var(--real);
+}
+.result[data-verdict="uncertain"] {
+  --tone: var(--unsure);
+}
+
+.verdict,
+.marker {
+  color: var(--tone);
+}
+
+.scale {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.track {
+  position: relative;
+  height: 1.75rem;
+  border-block: 1px solid var(--line);
+}
+
+.band {
+  position: absolute;
+  inset-block: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--unsure) 18%, transparent);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.marker {
+  position: absolute;
+  top: -0.4rem;
+  bottom: -0.4rem;
+  width: 3px;
+  background: currentColor;
+  transform: translateX(-50%);
+  transition: left 0.35s ease-out;
+}
+
+.detail {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail code {
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  margin-top: 2rem;
+  color: var(--ai);
+}
+
+.note {
+  margin-top: 3rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker {
+    transition: none;
+  }
+}

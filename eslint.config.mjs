@@ -9,6 +9,10 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    files: ["apps/api/public/**/*.js"],
+    languageOptions: { globals: globals.browser },
+  },
+  {
     files: ["apps/api/{src,test}/**/*.ts"],
     languageOptions: { globals: globals.node },
   },

@@ -1,4 +1,7 @@
+import { fileURLToPath } from "node:url";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
+import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyError } from "fastify";
 import type { Config } from "./config.ts";
 import type { DetectionStore } from "./db.ts";
@@ -37,7 +40,19 @@ export async function buildApp(deps: Dependencies) {
     reply.code(404).send({ error: { code: "not_found", message: `no route for ${req.url}` } }),
   );
 
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        "img-src": ["'self'", "blob:", "data:"],
+        // The page is served over plain http in local setups.
+        "upgrade-insecure-requests": null,
+      },
+    },
+  });
   await app.register(rateLimit, { global: false });
+  await app.register(fastifyStatic, {
+    root: fileURLToPath(new URL("../public", import.meta.url)),
+  });
 
   app.get("/health", async () => ({ status: "ok" }));
   app.get("/ready", async (_req, reply) => {

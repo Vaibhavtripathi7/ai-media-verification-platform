@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI image check</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Is this image AI-generated?</h1>
+
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="image/*" />
+        <img id="preview" alt="" hidden />
+        <span class="prompt" id="prompt">
+          Drop an image here, paste one with <kbd>Ctrl</kbd>+<kbd>V</kbd>, or
+          <span class="button">choose a file</span>
+        </span>
+      </label>
+
+      <section class="result" id="result" aria-live="polite" hidden>
+        <p class="verdict" id="verdict"></p>
+        <div class="scale" aria-hidden="true">
+          <span class="end">real</span>
+          <div class="track">
+            <div class="band" id="band"><span>can’t tell</span></div>
+            <div class="marker" id="marker"></div>
+          </div>
+          <span class="end">AI</span>
+        </div>
+        <p class="detail" id="detail"></p>
+      </section>
+
+      <p class="error" id="error" role="alert" hidden></p>
+
+      <p class="note">
+        The score comes from one open-source detector, and detectors miss a lot of images from newer
+        generators. “No sign of AI generation” means exactly that. It is not proof that an image is
+        real.
+        <a
+          href="https://github.com/Vaibhavtripathi7/ai-media-verification-platform/blob/master/docs/evaluation.md"
+          >How often it is wrong</a
+        >.
+      </p>
+    </main>
+  </body>
+</html>
