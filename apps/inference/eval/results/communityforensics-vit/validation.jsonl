@@ -115,7 +115,6 @@
 {"id": "validation-114", "is_ai": false, "source": "pexels", "logit": -6.041, "ms": 815.9}
 {"id": "validation-115", "is_ai": true, "source": "sd-1.5-epicdream", "logit": 9.3995, "ms": 769.1}
 {"id": "validation-116", "is_ai": false, "source": "laion", "logit": -8.6202, "ms": 698.0}
-{"id": "validation-117", "is_ai": false, "source": "pexels", "rejected": "5461x8192 is over 40000000 pixels", "ms": 33.0}
 {"id": "validation-118", "is_ai": false, "source": "laion", "logit": -10.1792, "ms": 781.3}
 {"id": "validation-119", "is_ai": true, "source": "sdxl-realvis-v5", "logit": -0.3337, "ms": 899.1}
 {"id": "validation-120", "is_ai": true, "source": "stable-diffusion-v1-5", "logit": 10.1211, "ms": 972.9}
@@ -204,7 +203,6 @@
 {"id": "validation-203", "is_ai": false, "source": "laion", "logit": -8.9637, "ms": 897.5}
 {"id": "validation-204", "is_ai": false, "source": "pexels", "logit": -4.6571, "ms": 953.2}
 {"id": "validation-205", "is_ai": true, "source": "kolors-v1.0", "logit": 3.0709, "ms": 1862.7}
-{"id": "validation-206", "is_ai": false, "source": "pexels", "rejected": "5464x8192 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-207", "is_ai": false, "source": "laion", "logit": -12.0246, "ms": 981.8}
 {"id": "validation-208", "is_ai": true, "source": "wan-video-2.2", "logit": 9.3136, "ms": 913.9}
 {"id": "validation-209", "is_ai": true, "source": "animagine-xl-4.0", "logit": 12.5679, "ms": 785.2}
@@ -621,7 +619,6 @@
 {"id": "validation-620", "is_ai": true, "source": "hidream-i1-full", "logit": 0.7731, "ms": 702.4}
 {"id": "validation-621", "is_ai": false, "source": "laion", "logit": -7.2834, "ms": 561.3}
 {"id": "validation-622", "is_ai": true, "source": "sdxl-juggernaut", "logit": 11.9618, "ms": 601.4}
-{"id": "validation-623", "is_ai": false, "source": "pexels", "rejected": "8192x5464 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-624", "is_ai": false, "source": "laion", "logit": -10.2356, "ms": 569.7}
 {"id": "validation-625", "is_ai": false, "source": "laion", "logit": -11.5981, "ms": 692.4}
 {"id": "validation-626", "is_ai": true, "source": "nano-banana", "logit": -8.7768, "ms": 661.7}
@@ -661,7 +658,6 @@
 {"id": "validation-660", "is_ai": true, "source": "animagine-xl-3.0", "logit": 0.7183, "ms": 1024.8}
 {"id": "validation-661", "is_ai": true, "source": "dalle-3", "logit": -4.1459, "ms": 735.3}
 {"id": "validation-662", "is_ai": true, "source": "cyberrealistic-xl-v9.0", "logit": 0.4217, "ms": 740.5}
-{"id": "validation-663", "is_ai": false, "source": "pexels", "rejected": "5420x8130 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-664", "is_ai": true, "source": "stable-diffusion-v1-4", "logit": 12.7292, "ms": 705.3}
 {"id": "validation-665", "is_ai": false, "source": "pexels", "logit": -7.078, "ms": 827.2}
 {"id": "validation-666", "is_ai": true, "source": "animagine-xl-4.0", "logit": 8.2304, "ms": 732.3}
@@ -1170,7 +1166,6 @@
 {"id": "validation-1169", "is_ai": true, "source": "sd-3.5", "logit": 7.7126, "ms": 987.6}
 {"id": "validation-1170", "is_ai": true, "source": "nano-banana", "logit": -6.3392, "ms": 778.5}
 {"id": "validation-1171", "is_ai": false, "source": "pexels", "logit": -4.2635, "ms": 640.0}
-{"id": "validation-1172", "is_ai": false, "source": "pexels", "rejected": "8192x5464 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-1173", "is_ai": true, "source": "animagine-xl-4.0", "logit": -0.7224, "ms": 586.5}
 {"id": "validation-1174", "is_ai": true, "source": "bfl-flux.2-klein-9b", "logit": -8.8066, "ms": 760.3}
 {"id": "validation-1175", "is_ai": false, "source": "laion", "logit": -2.4035, "ms": 455.2}
@@ -1189,7 +1184,6 @@
 {"id": "validation-1188", "is_ai": true, "source": "flux-mvc5000", "logit": -7.066, "ms": 531.1}
 {"id": "validation-1189", "is_ai": false, "source": "pexels", "logit": -4.7291, "ms": 537.0}
 {"id": "validation-1190", "is_ai": false, "source": "laion", "logit": -12.1323, "ms": 417.4}
-{"id": "validation-1191", "is_ai": false, "source": "pexels", "rejected": "6554x8192 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-1192", "is_ai": true, "source": "wai-nsfw-illustrious-v80-sdxl", "logit": 10.9514, "ms": 466.8}
 {"id": "validation-1193", "is_ai": false, "source": "pexels", "logit": -1.5866, "ms": 470.7}
 {"id": "validation-1194", "is_ai": true, "source": "obsession-illustriousxl-v10-sdxl", "logit": 11.7896, "ms": 448.9}
@@ -1241,10 +1235,16 @@
 {"id": "validation-1240", "is_ai": true, "source": "janku-v5-nsfw-trained-noobai-rou-wei-illustrious-xl-v50-sdxl", "logit": 9.4643, "ms": 465.5}
 {"id": "validation-1241", "is_ai": true, "source": "sd-1.5-epicdream", "logit": 11.8846, "ms": 428.8}
 {"id": "validation-1242", "is_ai": false, "source": "pexels", "logit": -7.4309, "ms": 501.1}
-{"id": "validation-1243", "is_ai": false, "source": "pexels", "rejected": "5461x8192 is over 40000000 pixels", "ms": 0.2}
 {"id": "validation-1244", "is_ai": false, "source": "pexels", "logit": -5.5888, "ms": 501.7}
 {"id": "validation-1245", "is_ai": true, "source": "chroma", "logit": 6.0966, "ms": 473.5}
 {"id": "validation-1246", "is_ai": true, "source": "flux-realism", "logit": -0.9526, "ms": 506.5}
 {"id": "validation-1247", "is_ai": true, "source": "flux.2-dev", "logit": 4.0014, "ms": 409.4}
 {"id": "validation-1248", "is_ai": true, "source": "midjourney-6", "logit": 9.5822, "ms": 457.0}
 {"id": "validation-1249", "is_ai": false, "source": "laion", "logit": -5.411, "ms": 402.5}
+{"id": "validation-117", "is_ai": false, "source": "pexels", "logit": -10.1803, "ms": 1027.5}
+{"id": "validation-206", "is_ai": false, "source": "pexels", "logit": -6.4472, "ms": 947.7}
+{"id": "validation-623", "is_ai": false, "source": "pexels", "logit": 5.6033, "ms": 940.5}
+{"id": "validation-663", "is_ai": false, "source": "pexels", "logit": -5.1861, "ms": 901.8}
+{"id": "validation-1172", "is_ai": false, "source": "pexels", "logit": -4.6061, "ms": 1001.2}
+{"id": "validation-1191", "is_ai": false, "source": "pexels", "logit": -5.4, "ms": 846.6}
+{"id": "validation-1243", "is_ai": false, "source": "pexels", "logit": 4.1754, "ms": 872.9}
