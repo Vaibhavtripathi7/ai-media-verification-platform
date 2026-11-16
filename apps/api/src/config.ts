@@ -15,6 +15,7 @@ const schema = z
       .int()
       .positive()
       .default(10 * 1024 * 1024),
+    RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
     // Platt scaling and verdict bands, all fitted on the validation split by
     // apps/inference/eval/report.py. See docs/evaluation.md.
     CALIBRATION_SLOPE: z.coerce.number().default(1),

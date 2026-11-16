@@ -81,36 +81,44 @@ export async function verifyRoutes(app: FastifyInstance, opts: Options) {
     (_req, body, done) => done(null, body),
   );
 
-  app.post("/api/v1/verify", async (req, reply) => {
-    const image = req.body;
-    if (!Buffer.isBuffer(image)) {
-      throw new HttpError(415, "unsupported_media_type", "send the raw image with an image/* type");
-    }
-    if (image.length === 0) {
-      throw new HttpError(400, "empty_body", "request body is empty");
-    }
+  app.post(
+    "/api/v1/verify",
+    { config: { rateLimit: { max: config.RATE_LIMIT_PER_MINUTE, timeWindow: 60_000 } } },
+    async (req, reply) => {
+      const image = req.body;
+      if (!Buffer.isBuffer(image)) {
+        throw new HttpError(
+          415,
+          "unsupported_media_type",
+          "send the raw image with an image/* type",
+        );
+      }
+      if (image.length === 0) {
+        throw new HttpError(400, "empty_body", "request body is empty");
+      }
 
-    const sha256 = createHash("sha256").update(image).digest();
-    const key = sha256.toString("hex");
+      const sha256 = createHash("sha256").update(image).digest();
+      const key = sha256.toString("hex");
 
-    let pending = inFlight.get(key);
-    if (!pending) {
-      pending = score(sha256, image, req.headers["content-type"]!).finally(() =>
-        inFlight.delete(key),
-      );
-      inFlight.set(key, pending);
-    }
-    const result = await pending;
+      let pending = inFlight.get(key);
+      if (!pending) {
+        pending = score(sha256, image, req.headers["content-type"]!).finally(() =>
+          inFlight.delete(key),
+        );
+        inFlight.set(key, pending);
+      }
+      const result = await pending;
 
-    const aiProbability = calibrate(result.logit, config);
-    reply.header("server-timing", result.timing);
-    return {
-      sha256: key,
-      verdict: verdictFor(aiProbability, config),
-      aiProbability: Number(aiProbability.toFixed(4)),
-      thresholds: { ai: config.AI_THRESHOLD, real: config.REAL_THRESHOLD },
-      model: result.model,
-      cached: result.cached,
-    };
-  });
+      const aiProbability = calibrate(result.logit, config);
+      reply.header("server-timing", result.timing);
+      return {
+        sha256: key,
+        verdict: verdictFor(aiProbability, config),
+        aiProbability: Number(aiProbability.toFixed(4)),
+        thresholds: { ai: config.AI_THRESHOLD, real: config.REAL_THRESHOLD },
+        model: result.model,
+        cached: result.cached,
+      };
+    },
+  );
 }

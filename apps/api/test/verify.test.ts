@@ -229,6 +229,15 @@ test("keeps answering when the cache database is unreachable", async () => {
   }
 });
 
+test("rate limits each client", async () => {
+  const app = await start({ RATE_LIMIT_PER_MINUTE: "2" });
+  await upload(app);
+  await upload(app);
+  const third = await upload(app);
+  assert.equal(third.statusCode, 429);
+  assert.equal(third.json().error.code, "rate_limited");
+});
+
 test("is ready only while the detector answers", async () => {
   const up = await start();
   assert.deepEqual((await up.inject("/ready")).json(), { status: "ready", model: MODEL });

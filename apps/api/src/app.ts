@@ -1,3 +1,4 @@
+import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyError } from "fastify";
 import type { Config } from "./config.ts";
 import type { DetectionStore } from "./db.ts";
@@ -16,6 +17,7 @@ const CODES: Record<number, string> = {
   400: "bad_request",
   413: "image_too_large",
   415: "unsupported_media_type",
+  429: "rate_limited",
 };
 
 export async function buildApp(deps: Dependencies) {
@@ -34,6 +36,8 @@ export async function buildApp(deps: Dependencies) {
   app.setNotFoundHandler((req, reply) =>
     reply.code(404).send({ error: { code: "not_found", message: `no route for ${req.url}` } }),
   );
+
+  await app.register(rateLimit, { global: false });
 
   app.get("/health", async () => ({ status: "ok" }));
   app.get("/ready", async (_req, reply) => {
