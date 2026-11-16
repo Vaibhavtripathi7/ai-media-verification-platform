@@ -25,6 +25,7 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/verify
       INFERENCE_URL: http://inference:8000
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-30}
     ports:
       - "3000:3000"
     depends_on:
