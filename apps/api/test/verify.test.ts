@@ -50,6 +50,14 @@ function otherModel(): Responder {
   };
 }
 
+function stalled(): Responder {
+  return (res) => {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.write("{");
+    setTimeout(() => res.end("}"), 1000);
+  };
+}
+
 function failure(status: number, detail: string, headers: Record<string, string> = {}): Responder {
   return (res) => {
     res.writeHead(status, { "content-type": "application/json", ...headers });
@@ -228,6 +236,14 @@ test("answers 503 when the detector is down and 504 when it is too slow", async 
   const timedOut = await upload(slow);
   assert.equal(timedOut.statusCode, 504);
   assert.equal(timedOut.json().error.code, "detector_timeout");
+});
+
+test("a detector that stalls after sending headers is a timeout too", async () => {
+  respond = stalled();
+  const app = await start();
+  const res = await upload(app);
+  assert.equal(res.statusCode, 504);
+  assert.equal(res.json().error.code, "detector_timeout");
 });
 
 test("keeps answering when the cache database is unreachable", async () => {

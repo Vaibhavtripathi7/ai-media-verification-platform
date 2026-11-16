@@ -28,6 +28,7 @@ export class InferenceClient {
 
   async detect(image: Buffer, contentType: string): Promise<Detection> {
     let res: Response;
+    let body: string;
     try {
       res = await fetch(new URL("/v1/detect", this.baseUrl), {
         method: "POST",
@@ -35,6 +36,9 @@ export class InferenceClient {
         body: image,
         signal: AbortSignal.timeout(this.timeoutMs),
       });
+      // The timeout also covers the body, so a detector that stalls after the
+      // headers has to be caught here too.
+      body = await res.text();
     } catch (err) {
       if (err instanceof DOMException && err.name === "TimeoutError") {
         throw new HttpError(504, "detector_timeout", "the detector took too long to answer");
@@ -44,12 +48,14 @@ export class InferenceClient {
       });
     }
 
-    if (res.ok) return (await res.json()) as Detection;
+    if (res.ok) return JSON.parse(body) as Detection;
 
-    const detail = await res.json().then(
-      (body) => (body as { detail?: string }).detail,
-      () => undefined,
-    );
+    let detail: string | undefined;
+    try {
+      detail = (JSON.parse(body) as { detail?: string }).detail;
+    } catch {
+      // Not FastAPI's JSON error shape; the status code alone decides.
+    }
     switch (res.status) {
       case 413:
         throw new HttpError(413, "image_too_large", detail ?? "image is too large");
