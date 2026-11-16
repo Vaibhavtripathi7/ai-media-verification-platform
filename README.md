@@ -34,7 +34,8 @@ Choices worth knowing about:
   into a fetcher for internal addresses. Uploading the bytes avoids both.
 - **The cache stores raw logits.** Calibration and thresholds are applied on the way out, so
   refitting them never invalidates a cached row. Rows are keyed by model revision as well as
-  hash.
+  hash, and the API refuses answers from any model other than the one its calibration was
+  fitted for.
 - **Identical uploads in flight share one model call.** A viral image arrives many times
   before the first result is cached; the later requests wait on the first one.
 - **One model call at a time.** ONNX Runtime already spreads a single call across every core
@@ -48,7 +49,9 @@ Choices worth knowing about:
   verdict differed from the full model's on 2 to 3 of the 48 test images compared.
 - **The model revision is pinned and baked into the image.** The upstream repo has had its
   weights replaced in place before, and the container never downloads anything at runtime.
-- **If Postgres goes down, requests still get answered**, just without the cache.
+- **If Postgres goes down, requests still get answered**, just without the cache. At startup
+  the API waits for Postgres but not for the detector, so cached answers keep working while
+  the detector restarts.
 
 Every response carries a `Server-Timing` header (`cache`, `decode`, `wait`, `model`), so
 the browser's network panel shows where the time went.
@@ -137,8 +140,9 @@ Errors come back as `{ "error": { "code", "message" } }`:
 | 400    | `empty_body`                            | no bytes were sent                        |
 | 413    | `image_too_large`                       | over 20 MB, or over 40 megapixels decoded |
 | 415    | `unsupported_media_type`                | the content type is not `image/*`         |
-| 422    | `invalid_image`                         | the bytes do not decode as an image       |
+| 422    | `invalid_image`                         | not a JPEG, PNG, WebP, GIF or AVIF image  |
 | 429    | `rate_limited`                          | more than 30 checks a minute from one IP  |
+| 502    | `detector_mismatch`, `detector_error`   | wrong detector model, or it failed        |
 | 503    | `detector_busy`, `detector_unavailable` | the detector is saturated or down         |
 | 504    | `detector_timeout`                      | the detector took longer than 15 s        |
 
@@ -147,15 +151,17 @@ Errors come back as `{ "error": { "code", "message" } }`:
 The API reads these from the environment. Defaults are in
 [apps/api/src/config.ts](apps/api/src/config.ts).
 
-| Variable                                     | Default                 |                                |
-| -------------------------------------------- | ----------------------- | ------------------------------ |
-| `DATABASE_URL`                               | required                |                                |
-| `INFERENCE_URL`                              | `http://localhost:8000` |                                |
-| `INFERENCE_TIMEOUT_MS`                       | `15000`                 |                                |
-| `MAX_IMAGE_BYTES`                            | `20971520`              |                                |
-| `RATE_LIMIT_PER_MINUTE`                      | `30`                    | per client IP, held in memory  |
-| `CALIBRATION_SLOPE`, `CALIBRATION_INTERCEPT` | `0.4065`, `1.5623`      | fitted on the validation split |
-| `AI_THRESHOLD`, `REAL_THRESHOLD`             | `0.541`, `0.212`        | fitted on the validation split |
+| Variable                                     | Default                    |                                 |
+| -------------------------------------------- | -------------------------- | ------------------------------- |
+| `DATABASE_URL`                               | required                   |                                 |
+| `INFERENCE_URL`                              | `http://localhost:8000`    |                                 |
+| `INFERENCE_TIMEOUT_MS`                       | `15000`                    |                                 |
+| `MAX_IMAGE_BYTES`                            | `20971520`                 |                                 |
+| `RATE_LIMIT_PER_MINUTE`                      | `30`                       | per client IP, held in memory   |
+| `TRUST_PROXY`                                | `false`                    | set only behind a reverse proxy |
+| `DETECTOR_MODEL`                             | `…DeepfakeDet-ViT@ac6ee45` | what the calibration is for     |
+| `CALIBRATION_SLOPE`, `CALIBRATION_INTERCEPT` | `0.4065`, `1.5623`         | fitted on the validation split  |
+| `AI_THRESHOLD`, `REAL_THRESHOLD`             | `0.541`, `0.212`           | fitted on the validation split  |
 
 The inference service takes `INFERENCE_THREADS` (physical cores, default 4), `MAX_PENDING`
 (default 8), `MAX_BODY_BYTES` and `MAX_IMAGE_PIXELS`.
@@ -165,7 +171,7 @@ The inference service takes `INFERENCE_THREADS` (physical cores, default 4), `MA
 API, with the inference service running:
 
 ```sh
-docker run -d --name verify-pg -p 5432:5432 \
+docker run -d --name verify-pg -p 127.0.0.1:5432:5432 \
   -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=verify postgres:17-alpine
 docker exec verify-pg createdb -U postgres verify_test
 
