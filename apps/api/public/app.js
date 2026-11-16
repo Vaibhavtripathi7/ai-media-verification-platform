@@ -25,18 +25,25 @@ const ERRORS = {
 const promptText = prompt.innerHTML;
 let latest = 0;
 
+function setBusy(busy) {
+  drop.classList.toggle("busy", busy);
+  if (busy) prompt.textContent = "Checking…";
+  else prompt.innerHTML = promptText;
+}
+
 async function check(file) {
+  // Any newer pick, even one that gets rejected, makes an answer still on its way stale.
+  const id = ++latest;
   if (!file.type.startsWith("image/")) {
+    setBusy(false);
     showError("That file isn’t an image.");
     return;
   }
 
-  const id = ++latest;
   URL.revokeObjectURL(preview.src);
   preview.src = URL.createObjectURL(file);
   preview.hidden = false;
-  drop.classList.add("busy");
-  prompt.textContent = "Checking…";
+  setBusy(true);
   error.hidden = true;
 
   const started = performance.now();
@@ -58,10 +65,7 @@ async function check(file) {
   } catch {
     if (id === latest) showError("Couldn’t reach the server.");
   } finally {
-    if (id === latest) {
-      drop.classList.remove("busy");
-      prompt.innerHTML = promptText;
-    }
+    if (id === latest) setBusy(false);
   }
 }
 
