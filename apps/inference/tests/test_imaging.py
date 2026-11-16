@@ -32,6 +32,11 @@ def test_rejects_bytes_that_are_not_an_image(preprocess):
         preprocess.decode(b"definitely not a png")
 
 
+def test_rejects_formats_outside_the_allowlist(preprocess):
+    with pytest.raises(InvalidImage):
+        preprocess.decode(encode((64, 64), "TIFF"))
+
+
 def test_rejects_truncated_image(preprocess):
     with pytest.raises(InvalidImage):
         preprocess.decode(encode((200, 200), "JPEG")[:300])
@@ -40,6 +45,11 @@ def test_rejects_truncated_image(preprocess):
 def test_checks_pixel_count_before_decoding(preprocess):
     with pytest.raises(ImageTooLarge):
         preprocess.decode(encode((1001, 1000)))
+
+
+def test_pillow_size_guard_is_left_to_decode():
+    # Pillow's own guard runs before draft() and would refuse 200 MP phone photos.
+    assert Image.MAX_IMAGE_PIXELS is None
 
 
 def test_pixel_limit_applies_to_the_size_a_jpeg_decodes_to(preprocess):

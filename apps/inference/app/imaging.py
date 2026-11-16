@@ -5,6 +5,12 @@ import numpy as np
 from PIL import Image
 
 MAX_ASPECT = 8
+FORMATS = ("JPEG", "PNG", "WEBP", "GIF", "AVIF")
+
+# Pillow refuses anything over about 179 MP at open(), before draft() has had a
+# chance to shrink it, which would turn away 200 MP phone photos. decode() checks
+# the size that will actually be decoded instead.
+Image.MAX_IMAGE_PIXELS = None
 
 
 class InvalidImage(ValueError):
@@ -42,11 +48,9 @@ class Preprocessor:
 
     def decode(self, data: bytes, draft: bool = True) -> Image.Image:
         try:
-            image = Image.open(io.BytesIO(data))
-        except Image.DecompressionBombError as exc:
-            raise ImageTooLarge(str(exc)) from exc
+            image = Image.open(io.BytesIO(data), formats=FORMATS)
         except OSError as exc:
-            raise InvalidImage("not a decodable image") from exc
+            raise InvalidImage("not a JPEG, PNG, WebP, GIF or AVIF image") from exc
 
         if draft and image.format == "JPEG":
             # libjpeg can decode at 1/2, 1/4 or 1/8 scale. Asking for at least the
