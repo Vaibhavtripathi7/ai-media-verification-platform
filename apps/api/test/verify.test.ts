@@ -124,6 +124,19 @@ test("scores a new image, then answers the same bytes from the cache", async () 
   assert.equal(detectCalls, 1);
 });
 
+test("identical uploads in flight at the same time share one detector call", async () => {
+  respond = detection(0, 100);
+  const app = await start();
+
+  const results = await Promise.all(Array.from({ length: 5 }, () => upload(app)));
+
+  assert.deepEqual(
+    results.map((r) => r.statusCode),
+    [200, 200, 200, 200, 200],
+  );
+  assert.equal(detectCalls, 1);
+});
+
 test("maps the probability onto the configured bands", () => {
   const config = loadConfig({ DATABASE_URL, AI_THRESHOLD: "0.8", REAL_THRESHOLD: "0.2" });
   assert.equal(verdictFor(0.8, config), "likely_ai");

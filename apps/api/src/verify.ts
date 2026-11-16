@@ -38,6 +38,8 @@ const ms = (start: number) => (performance.now() - start).toFixed(1);
 export async function verifyRoutes(app: FastifyInstance, opts: Options) {
   const { config, store, inference } = opts;
   let model = opts.model;
+  // Identical images uploaded at the same time share one detector call.
+  const inFlight = new Map<string, Promise<Scored>>();
 
   async function score(sha256: Buffer, image: Buffer, contentType: string): Promise<Scored> {
     // The table is a cache. If Postgres is down we still answer, just without it.
@@ -91,7 +93,14 @@ export async function verifyRoutes(app: FastifyInstance, opts: Options) {
     const sha256 = createHash("sha256").update(image).digest();
     const key = sha256.toString("hex");
 
-    const result = await score(sha256, image, req.headers["content-type"]!);
+    let pending = inFlight.get(key);
+    if (!pending) {
+      pending = score(sha256, image, req.headers["content-type"]!).finally(() =>
+        inFlight.delete(key),
+      );
+      inFlight.set(key, pending);
+    }
+    const result = await pending;
 
     const aiProbability = calibrate(result.logit, config);
     reply.header("server-timing", result.timing);
