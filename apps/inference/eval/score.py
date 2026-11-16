@@ -4,8 +4,8 @@
     python -m eval.score communityforensics-vit test --recompress
 
 Reruns skip ids that are already in the output file, so a long run can be resumed.
-Images the service itself would refuse (undecodable, or over the pixel limit) are
-recorded with the reason instead of a score.
+Images that cannot be decoded, or that the service would refuse, are recorded with
+the reason instead of a score.
 """
 
 import argparse
@@ -41,14 +41,16 @@ def main() -> None:
                 break
             if sample.id in done:
                 continue
-            data = recompress(sample.data) if args.recompress else sample.data
             row = {"id": sample.id, "is_ai": sample.is_ai, "source": sample.source}
-            start = time.perf_counter()
             try:
+                data = recompress(sample.data) if args.recompress else sample.data
+                start = time.perf_counter()
                 row["logit"] = round(score(data), 4)
-            except (InvalidImage, ImageTooLarge) as exc:
+                row["ms"] = round((time.perf_counter() - start) * 1000, 1)
+            # OSError is how Pillow itself reports an unreadable file, which the
+            # recompression step and the transformers baseline run into directly.
+            except (InvalidImage, ImageTooLarge, OSError) as exc:
                 row["rejected"] = str(exc)
-            row["ms"] = round((time.perf_counter() - start) * 1000, 1)
             f.write(json.dumps(row) + "\n")
             if i % 100 == 0:
                 f.flush()
