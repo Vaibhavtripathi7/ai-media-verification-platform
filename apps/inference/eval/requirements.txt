@@ -1,6 +1,7 @@
 # The scorer runs the service code, so it needs the service dependencies too.
 -r ../requirements.txt
 pyarrow==26.0.1
+scikit-learn==1.9.1
 # Only for the transformers baseline. CPU wheels:
 #   pip install torch --index-url https://download.pytorch.org/whl/cpu
 torch==2.15.0
