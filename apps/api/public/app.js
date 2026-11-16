@@ -16,7 +16,7 @@ const VERDICTS = {
 };
 
 const ERRORS = {
-  invalid_image: "Couldn’t read that image. JPEG, PNG, WebP and GIF work.",
+  invalid_image: "Couldn’t read that image. JPEG, PNG, WebP, GIF and AVIF work.",
   image_too_large: "That image is over the size limit.",
   rate_limited: "Too many checks in a minute. Wait a moment and try again.",
   detector_busy: "The detector is busy. Try again in a few seconds.",
