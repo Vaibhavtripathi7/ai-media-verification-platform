@@ -11,7 +11,7 @@ const SCHEMA = `
 `;
 
 export class DetectionStore {
-  readonly pool: pg.Pool;
+  private readonly pool: pg.Pool;
 
   constructor(pool: pg.Pool) {
     this.pool = pool;

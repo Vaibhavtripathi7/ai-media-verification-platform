@@ -9,8 +9,8 @@ export interface Detection {
 }
 
 export class InferenceClient {
-  readonly baseUrl: string;
-  readonly timeoutMs: number;
+  private readonly baseUrl: string;
+  private readonly timeoutMs: number;
 
   constructor(baseUrl: string, timeoutMs: number) {
     this.baseUrl = baseUrl;
