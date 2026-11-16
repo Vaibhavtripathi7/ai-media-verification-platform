@@ -10,7 +10,7 @@ const store = new DetectionStore(pool);
 const inference = new InferenceClient(config.INFERENCE_URL, config.INFERENCE_TIMEOUT_MS);
 
 await store.migrate();
-const app = await buildApp({ config, store, inference, model: await inference.model() });
+const app = await buildApp({ config, store, inference });
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.once(signal, async () => {

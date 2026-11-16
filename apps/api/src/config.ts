@@ -16,8 +16,11 @@ const schema = z
       .positive()
       .default(20 * 1024 * 1024),
     RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
-    // Platt scaling and verdict bands, all fitted on the validation split by
-    // apps/inference/eval/report.py. See docs/evaluation.md.
+    // Platt scaling and verdict bands, fitted for DETECTOR_MODEL on the validation
+    // split by apps/inference/eval/report.py. See docs/evaluation.md.
+    DETECTOR_MODEL: z
+      .string()
+      .default("buildborderless/CommunityForensics-DeepfakeDet-ViT@ac6ee45"),
     CALIBRATION_SLOPE: z.coerce.number().default(0.4065),
     CALIBRATION_INTERCEPT: z.coerce.number().default(1.5623),
     AI_THRESHOLD: z.coerce.number().min(0).max(1).default(0.541),

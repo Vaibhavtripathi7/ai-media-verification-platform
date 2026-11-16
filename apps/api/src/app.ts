@@ -3,18 +3,8 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyError } from "fastify";
-import type { Config } from "./config.ts";
-import type { DetectionStore } from "./db.ts";
 import { HttpError } from "./errors.ts";
-import type { InferenceClient } from "./inference.ts";
-import { verifyRoutes } from "./verify.ts";
-
-interface Dependencies {
-  config: Config;
-  store: DetectionStore;
-  inference: InferenceClient;
-  model: string;
-}
+import { type Dependencies, verifyRoutes } from "./verify.ts";
 
 const CODES: Record<number, string> = {
   400: "bad_request",
@@ -56,11 +46,10 @@ export async function buildApp(deps: Dependencies) {
 
   app.get("/health", async () => ({ status: "ok" }));
   app.get("/ready", async (_req, reply) => {
-    try {
-      return { status: "ready", model: await deps.inference.model() };
-    } catch {
-      return reply.code(503).send({ status: "detector unavailable" });
-    }
+    const expected = deps.config.DETECTOR_MODEL;
+    const model = await deps.inference.model().catch(() => null);
+    if (model === expected) return { status: "ready", model };
+    return reply.code(503).send({ status: "not ready", detector: model, expected });
   });
 
   await app.register(verifyRoutes, deps);

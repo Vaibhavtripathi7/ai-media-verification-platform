@@ -19,25 +19,23 @@ export function verdictFor(aiProbability: number, config: Config): Verdict {
   return "uncertain";
 }
 
-interface Options {
+export interface Dependencies {
   config: Config;
   store: DetectionStore;
   inference: InferenceClient;
-  model: string;
 }
 
 interface Scored {
   logit: number;
-  model: string;
   cached: boolean;
   timing: string;
 }
 
 const ms = (start: number) => (performance.now() - start).toFixed(1);
 
-export async function verifyRoutes(app: FastifyInstance, opts: Options) {
-  const { config, store, inference } = opts;
-  let model = opts.model;
+export async function verifyRoutes(app: FastifyInstance, deps: Dependencies) {
+  const { config, store, inference } = deps;
+  const model = config.DETECTOR_MODEL;
   // Identical images uploaded at the same time share one detector call.
   const inFlight = new Map<string, Promise<Scored>>();
 
@@ -50,21 +48,24 @@ export async function verifyRoutes(app: FastifyInstance, opts: Options) {
     });
     const lookup = `cache;dur=${ms(lookupStart)}`;
     if (cached !== undefined) {
-      return { logit: cached, model, cached: true, timing: lookup };
+      return { logit: cached, cached: true, timing: lookup };
     }
 
     const result = await inference.detect(image, contentType);
+    // The calibration only means something for the model it was fitted on.
     if (result.model !== model) {
-      app.log.warn({ was: model, now: result.model }, "detector model changed");
-      model = result.model;
+      throw new HttpError(
+        502,
+        "detector_mismatch",
+        `the detector runs ${result.model}, but the calibration is for ${model}`,
+      );
     }
-    await store.save(sha256, result.model, result.logit).catch((err: unknown) => {
+    await store.save(sha256, model, result.logit).catch((err: unknown) => {
       app.log.error({ err }, "cache write failed");
     });
 
     return {
       logit: result.logit,
-      model: result.model,
       cached: false,
       timing: [
         lookup,
@@ -116,7 +117,7 @@ export async function verifyRoutes(app: FastifyInstance, opts: Options) {
         verdict: verdictFor(aiProbability, config),
         aiProbability: Number(aiProbability.toFixed(4)),
         thresholds: { ai: config.AI_THRESHOLD, real: config.REAL_THRESHOLD },
-        model: result.model,
+        model,
         cached: result.cached,
       };
     },

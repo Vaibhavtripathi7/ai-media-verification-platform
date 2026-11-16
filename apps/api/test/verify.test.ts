@@ -35,6 +35,21 @@ function detection(logit: number, delayMs = 0): Responder {
     }, delayMs);
 }
 
+function otherModel(): Responder {
+  return (res) => {
+    res.setHeader("content-type", "application/json");
+    res.end(
+      JSON.stringify({
+        logit: 2,
+        model: "someone/else@0000000",
+        decode_ms: 1,
+        wait_ms: 0,
+        model_ms: 5,
+      }),
+    );
+  };
+}
+
 function failure(status: number, detail: string, headers: Record<string, string> = {}): Responder {
   return (res) => {
     res.writeHead(status, { "content-type": "application/json", ...headers });
@@ -80,6 +95,7 @@ async function start(env: Record<string, string> = {}, appStore: DetectionStore 
     INFERENCE_URL: detectorUrl,
     INFERENCE_TIMEOUT_MS: "300",
     MAX_IMAGE_BYTES: "1000",
+    DETECTOR_MODEL: MODEL,
     CALIBRATION_SLOPE: "1",
     CALIBRATION_INTERCEPT: "0",
     AI_THRESHOLD: "0.8",
@@ -88,7 +104,7 @@ async function start(env: Record<string, string> = {}, appStore: DetectionStore 
     ...env,
   });
   const inference = new InferenceClient(config.INFERENCE_URL, config.INFERENCE_TIMEOUT_MS);
-  return buildApp({ config, store: appStore, inference, model: MODEL });
+  return buildApp({ config, store: appStore, inference });
 }
 
 type App = Awaited<ReturnType<typeof start>>;
@@ -238,10 +254,29 @@ test("rate limits each client", async () => {
   assert.equal(third.json().error.code, "rate_limited");
 });
 
-test("is ready only while the detector answers", async () => {
+test("refuses to calibrate a model it was not fitted for", async () => {
+  respond = otherModel();
+  const app = await start();
+
+  const res = await upload(app);
+  assert.equal(res.statusCode, 502);
+  assert.equal(res.json().error.code, "detector_mismatch");
+
+  await upload(app);
+  assert.equal(detectCalls, 2, "a mismatched answer must not be cached");
+});
+
+test("is ready only while the expected detector answers", async () => {
   const up = await start();
   assert.deepEqual((await up.inject("/ready")).json(), { status: "ready", model: MODEL });
 
   const down = await start({ INFERENCE_URL: CLOSED_PORT_URL });
   assert.equal((await down.inject("/ready")).statusCode, 503);
+
+  const wrong = await start({ DETECTOR_MODEL: "someone/else@0000000" });
+  assert.deepEqual((await wrong.inject("/ready")).json(), {
+    status: "not ready",
+    detector: MODEL,
+    expected: "someone/else@0000000",
+  });
 });
