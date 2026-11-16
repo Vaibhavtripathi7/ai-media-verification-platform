@@ -18,10 +18,10 @@ const schema = z
     RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
     // Platt scaling and verdict bands, all fitted on the validation split by
     // apps/inference/eval/report.py. See docs/evaluation.md.
-    CALIBRATION_SLOPE: z.coerce.number().default(1),
-    CALIBRATION_INTERCEPT: z.coerce.number().default(0),
-    AI_THRESHOLD: z.coerce.number().min(0).max(1).default(0.5),
-    REAL_THRESHOLD: z.coerce.number().min(0).max(1).default(0.5),
+    CALIBRATION_SLOPE: z.coerce.number().default(0.4161),
+    CALIBRATION_INTERCEPT: z.coerce.number().default(1.635),
+    AI_THRESHOLD: z.coerce.number().min(0).max(1).default(0.533),
+    REAL_THRESHOLD: z.coerce.number().min(0).max(1).default(0.212),
   })
   .refine((c) => c.REAL_THRESHOLD <= c.AI_THRESHOLD, {
     message: "REAL_THRESHOLD must not be above AI_THRESHOLD",
