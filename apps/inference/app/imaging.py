@@ -46,15 +46,16 @@ class Preprocessor:
         except OSError as exc:
             raise InvalidImage("not a decodable image") from exc
 
-        # open() has only read the header at this point, so no pixels are decoded yet.
-        width, height = image.size
-        if width * height > self.max_pixels:
-            raise ImageTooLarge(f"{width}x{height} is over {self.max_pixels} pixels")
-
         if draft and image.format == "JPEG":
             # libjpeg can decode at 1/2, 1/4 or 1/8 scale. Asking for at least the
             # resize target keeps the final resize below doing the real work.
             image.draft("RGB", (self.shortest_edge, self.shortest_edge))
+
+        # The limit is on what will actually be decoded, so a 50 MP phone photo that
+        # draft() shrinks is fine while a 50 MP PNG is not. Nothing is decoded yet.
+        width, height = image.size
+        if width * height > self.max_pixels:
+            raise ImageTooLarge(f"{width}x{height} is over {self.max_pixels} pixels")
 
         try:
             return image.convert("RGB")

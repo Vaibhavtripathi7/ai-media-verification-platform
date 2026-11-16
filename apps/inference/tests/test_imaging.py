@@ -39,3 +39,10 @@ def test_rejects_truncated_image(preprocess):
 def test_checks_pixel_count_before_decoding(preprocess):
     with pytest.raises(ImageTooLarge):
         preprocess.decode(encode((1001, 1000)))
+
+
+def test_pixel_limit_applies_to_the_size_a_jpeg_decodes_to(preprocess):
+    big_jpeg = encode((1200, 1000), "JPEG")
+    assert min(preprocess.decode(big_jpeg).size) >= 40
+    with pytest.raises(ImageTooLarge):
+        preprocess.decode(big_jpeg, draft=False)

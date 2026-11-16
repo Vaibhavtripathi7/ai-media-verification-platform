@@ -10,7 +10,7 @@ class Settings:
     model_file: str = "onnx/model.onnx"
     # Physical cores. Running on hyperthreads as well made this model slower.
     threads: int = 4
-    max_body_bytes: int = 10 * 1024 * 1024
+    max_body_bytes: int = 20 * 1024 * 1024
     max_pixels: int = 40_000_000
     # Requests handled at once, counting reads, decodes and the model queue.
     # Past this, new requests get a 503 straight away instead of waiting.
