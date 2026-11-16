@@ -13,7 +13,7 @@ export default tseslint.config(
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ["apps/api/{src,test}/**/*.ts"],
+    files: ["apps/api/{src,test,scripts}/**/*.ts"],
     languageOptions: { globals: globals.node },
   },
   prettier,
