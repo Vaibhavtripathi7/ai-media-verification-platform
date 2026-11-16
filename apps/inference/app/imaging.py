@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import numpy as np
 from PIL import Image
 
+MAX_ASPECT = 8
+
 
 class InvalidImage(ValueError):
     pass
@@ -63,6 +65,19 @@ class Preprocessor:
             raise InvalidImage("image data is truncated or corrupt") from exc
 
     def __call__(self, image: Image.Image) -> np.ndarray:
+        # Only the middle of the image reaches the model. A long, thin upload such as
+        # 20 x 2,000,000 would otherwise be resized into a strip billions of pixels
+        # long just to have most of it cropped away, so trim the long side first.
+        # Nothing in the evaluation data is past 8:1, so those results still hold.
+        width, height = image.size
+        keep = MAX_ASPECT * min(width, height)
+        if width > keep:
+            left = (width - keep) // 2
+            image = image.crop((left, 0, left + keep, height))
+        elif height > keep:
+            top = (height - keep) // 2
+            image = image.crop((0, top, width, top + keep))
+
         width, height = image.size
         if width <= height:
             size = (self.shortest_edge, int(self.shortest_edge * height / width))

@@ -1,6 +1,7 @@
 import pytest
+from PIL import Image
 
-from app.imaging import ImageTooLarge, InvalidImage, Preprocessor
+from app.imaging import MAX_ASPECT, ImageTooLarge, InvalidImage, Preprocessor
 
 from .support import PREPROCESSOR_CONFIG, encode
 
@@ -46,3 +47,19 @@ def test_pixel_limit_applies_to_the_size_a_jpeg_decodes_to(preprocess):
     assert min(preprocess.decode(big_jpeg).size) >= 40
     with pytest.raises(ImageTooLarge):
         preprocess.decode(big_jpeg, draft=False)
+
+
+def test_long_thin_images_are_trimmed_before_resizing(preprocess, monkeypatch):
+    sizes = []
+    resize = Image.Image.resize
+
+    def spy(self, size, *args, **kwargs):
+        sizes.append(size)
+        return resize(self, size, *args, **kwargs)
+
+    monkeypatch.setattr(Image.Image, "resize", spy)
+    pixels = preprocess(preprocess.decode(encode((2, 100_000))))
+
+    assert pixels.shape == (3, 32, 32)
+    # Without the trim this resize would produce a 40 x 2,000,000 strip.
+    assert max(sizes[-1]) <= MAX_ASPECT * 40
