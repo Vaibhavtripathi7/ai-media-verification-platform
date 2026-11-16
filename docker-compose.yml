@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:17-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -15,6 +16,7 @@ services:
 
   inference:
     build: apps/inference
+    restart: unless-stopped
     environment:
       INFERENCE_THREADS: ${INFERENCE_THREADS:-4}
 
@@ -22,6 +24,7 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/verify
       INFERENCE_URL: http://inference:8000
