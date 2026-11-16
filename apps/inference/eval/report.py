@@ -190,9 +190,12 @@ def main() -> None:
         print(table(header, [line]))
 
     print("\n## Refused by the service's own limits\n")
-    for name in ["validation", *(name for name, _ in SETS)]:
-        for row in rejected(SERVED, name):
-            print(f"- {name} {row['id']} ({row['source']}): {row['rejected']}")
+    refused = [
+        f"- {name} {row['id']} ({row['source']}): {row['rejected']}"
+        for name in ["validation", *(name for name, _ in SETS)]
+        for row in rejected(SERVED, name)
+    ]
+    print("\n".join(refused) or "None.")
 
     print("\n## Scoring time per image during the eval run\n")
     rows = []
