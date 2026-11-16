@@ -1,20 +1,14 @@
-import { createApp } from "./app";
-import { env } from "./config";
+import { buildApp } from "./app.ts";
+import { loadConfig } from "./config.ts";
 
-async function startServer() {
-  const app = createApp();
+const config = loadConfig();
+const app = await buildApp(config);
 
-  try {
-    await app.listen({
-      port: env.PORT,
-      host: "0.0.0.0"
-    });
-
-    console.log("API running on port 3000");
-  } catch (error) {
-    app.log.error(error);
-    process.exit(1);
-  }
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.once(signal, async () => {
+    app.log.info({ signal }, "shutting down");
+    await app.close();
+  });
 }
 
-startServer();
+await app.listen({ port: config.PORT, host: config.HOST });

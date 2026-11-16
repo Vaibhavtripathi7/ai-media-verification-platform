@@ -1,23 +1,24 @@
 {
-  "name": "ai-media-verification-plateform",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "name": "ai-media-verification",
+  "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.33.0",
-  "devDependencies": {
-    "@types/node": "^25.9.1",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
+  "engines": {
+    "node": ">=22.18"
   },
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "fastify": "^5.8.5",
-    "zod": "^4.4.3"
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript-eslint": "^8.72.2"
   }
 }

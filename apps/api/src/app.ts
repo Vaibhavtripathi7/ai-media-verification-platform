@@ -1,9 +1,8 @@
 import Fastify from "fastify";
+import type { Config } from "./config.ts";
 
-export function createApp() {
-  const app = Fastify({
-    logger: true
-  });
-
+export async function buildApp(config: Config) {
+  const app = Fastify({ logger: { level: config.LOG_LEVEL } });
+  app.get("/health", async () => ({ status: "ok" }));
   return app;
 }
