@@ -212,3 +212,8 @@ node scripts/bench.ts ~/photo.jpg ~/render.png --requests 60
 - Shared rate limiting. The limiter lives in the API's memory, which is correct for one
   instance and too generous for several.
 - A deployment. This runs locally with Docker Compose.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The detector weights are MIT as well. OpenFake is CC BY-NC 4.0,
+so only scores derived from it are in this repository, not its images.
