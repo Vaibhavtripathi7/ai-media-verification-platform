@@ -14,7 +14,10 @@ const CODES: Record<number, string> = {
 };
 
 export async function buildApp(deps: Dependencies) {
-  const app = Fastify({ logger: { level: deps.config.LOG_LEVEL } });
+  const app = Fastify({
+    logger: { level: deps.config.LOG_LEVEL },
+    trustProxy: deps.config.TRUST_PROXY,
+  });
 
   app.setErrorHandler((err: FastifyError | HttpError, req, reply) => {
     const status = err.statusCode ?? 500;

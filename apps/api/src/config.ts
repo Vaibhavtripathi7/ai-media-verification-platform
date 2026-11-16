@@ -16,6 +16,9 @@ const schema = z
       .positive()
       .default(20 * 1024 * 1024),
     RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
+    // Only behind a reverse proxy. Otherwise clients could pick their own
+    // X-Forwarded-For and dodge the rate limit.
+    TRUST_PROXY: z.stringbool().default(false),
     // Platt scaling and verdict bands, fitted for DETECTOR_MODEL on the validation
     // split by apps/inference/eval/report.py. See docs/evaluation.md.
     DETECTOR_MODEL: z

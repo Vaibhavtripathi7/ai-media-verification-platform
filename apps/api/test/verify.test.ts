@@ -270,6 +270,24 @@ test("rate limits each client", async () => {
   assert.equal(third.json().error.code, "rate_limited");
 });
 
+test("keys the rate limit on the forwarded client only when told to trust the proxy", async () => {
+  const fromClient = (app: App, ip: string) =>
+    app.inject({
+      method: "POST",
+      url: "/api/v1/verify",
+      headers: { "content-type": "image/png", "x-forwarded-for": ip },
+      body: IMAGE,
+    });
+
+  const direct = await start({ RATE_LIMIT_PER_MINUTE: "1" });
+  await fromClient(direct, "203.0.113.1");
+  assert.equal((await fromClient(direct, "203.0.113.2")).statusCode, 429);
+
+  const proxied = await start({ RATE_LIMIT_PER_MINUTE: "1", TRUST_PROXY: "true" });
+  await fromClient(proxied, "203.0.113.1");
+  assert.equal((await fromClient(proxied, "203.0.113.2")).statusCode, 200);
+});
+
 test("refuses to calibrate a model it was not fitted for", async () => {
   respond = otherModel();
   const app = await start();
